@@ -1,0 +1,28 @@
+{
+  "name": "json-literal-types",
+  "version": "1.0.0",
+  "description": "TypeScript library for validating and parsing JSON string literals",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "bun test",
+    "changelog": "bun run changeset",
+    "version": "changeset version",
+    "publish": "changeset publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/teamchong/json-literal-types"
+  },
+  "author": "Steven Chong",
+  "license": "MIT",
+  "devDependencies": {
+    "@changesets/cli": "^2.27.5",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
