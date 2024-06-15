@@ -95,9 +95,37 @@ type ParseNumber<S extends string, L extends string = '', Result extends string 
  */
 type ParseExponent<Mantissa extends string, Exponent extends string, L extends string = ''>
   = Exponent extends `0` | '-0' ? [L, Num<Mantissa>]
-  : Exponent extends `-${infer N extends bigint}` ? [L, Num<`${Mantissa}e-${N}`>]
-  : Exponent extends `${infer N extends bigint}` ? [L, Num<`${Mantissa}e+${N}`>]
+  : Exponent extends `-${infer N extends bigint}`
+    ? LessThan<N, 7n> extends false ? [L, Num<`${Mantissa}e-${N}`>]
+    : ParseExponent<Mantissa extends `${infer A}.${infer B}` & `${infer A1}${Digit}.${infer B}` ? `${A1}.${TrimStart<A, A1>}${B}`
+      : Mantissa extends `${infer A1}${Digit}` ? `${A1}.${TrimStart<Mantissa, A1>}`
+      : Mantissa
+      , `-${MinusOne<N>}`, L>
+  : Exponent extends `${infer N extends bigint}`
+    ? LessThan<N, 21n> extends false ? [L, Num<`${Mantissa}e+${N}`>]
+    : ParseExponent<Mantissa extends `${infer A}.${infer B1}${infer B2}` ? B2 extends '' ? `${A}${B1}` : `${A}${B1}.${B2}`
+      : `${Mantissa}0`
+      , `${MinusOne<N>}`, L>
   : [L, Num<Mantissa>]
+
+/**
+ * Return true if A is less than B, otherwise return false.
+ */
+type LessThan<A extends bigint, B extends bigint, L extends string = ``, Lt = undefined>
+  = `${A}<${B}` extends `${L}${infer X}${any}<${L}${infer Y}${any}`
+    ? LessThan<A, B, `${L}${any}`, [Lt, X & Y] extends [undefined, never] ? '0123456789' extends `${any}${X}${any}${Y}${any}` ? true : false : Lt>
+  : `${A}` extends `${L}${any}${any}` ? false
+  : `${B}` extends `${L}${any}${any}` ? true
+  : Lt extends true ? true : false
+
+/**
+ * Decrements a bigint by one. This is used for parsing the exponent part of a JSON number.
+ */
+type MinusOne<N extends bigint, Result extends string = '', S extends string = `${N}`>
+  = S extends `${infer L}9` ? `${L}8${Result}` : S extends `${infer L}8` ? `${L}7${Result}` : S extends `${infer L}7` ? `${L}6${Result}`
+  : S extends `${infer L}6` ? `${L}5${Result}` : S extends `${infer L}5` ? `${L}4${Result}` : S extends `${infer L}4` ? `${L}3${Result}`
+  : S extends `${infer L}3` ? `${L}2${Result}` : S extends `${infer L}2` ? `${L}1${Result}` : S extends `${infer L}1` ? `${L}0${Result}`
+  : S extends '10' ? `9${Result}` : S extends `${infer L extends bigint}0` ? MinusOne<L, `9${Result}`> : never
 
 /**
  * Advances the parser by skipping whitespace characters.
@@ -121,7 +149,7 @@ type TrimStart<S extends string, Start extends string> = S extends `${Start}${in
 /**
  * Converts a string representation of a number to a TypeScript number type.
  */
-type Num<S extends string> = S extends `${infer N extends number}` ? N : never
+type Num<S extends string> = S extends `${infer N extends number}` ? number extends N ? never : N : never
 
 /**
  * Defines the valid digits for parsing JSON numbers.
