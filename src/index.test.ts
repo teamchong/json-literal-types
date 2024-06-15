@@ -52,6 +52,12 @@ test('parseAsNumber', () => {
   expect(() => expect(parseAsNumber('123')).toEqual(null)).toThrowError()
   expect(parseAsNumber('123')).toBeNumber()
   expect(parseAsNumber('123')).toEqual(123)
+  expect(parseAsNumber('123.456')).toBeNumber()
+  expect(parseAsNumber('123.456')).toEqual(123.456)
+  expect(parseAsNumber('123.456e21')).toBeNumber()
+  expect(parseAsNumber('123.456e21')).toEqual(123.456e21)
+  expect(parseAsNumber('123.456e-21')).toBeNumber()
+  expect(parseAsNumber('123.456e-21')).toEqual(123.456e-21)
 })
 test('parseAsBoolean', () => {
   // @ts-expect-error expect json

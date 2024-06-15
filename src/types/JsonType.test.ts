@@ -43,3 +43,4 @@ type _7b = Expect<Equal<JsonArray<`[1,"Hello\\nWorld\\u838a",true,false,null]`>,
 type _8a = Expect<Equal<Parse<`"Hello\\nWorld\\u838a"`>, never>>
 type _8b = Expect<Equal<Parse<`"Hello\\nWorld\\u838a"`>, 'Hello\nWorld莊'>>
 type _8c = Expect<Equal<Parse<`abc`>, never>>
+type _8d = Expect<Equal<Parse<`2e21`>, 2e21>>
