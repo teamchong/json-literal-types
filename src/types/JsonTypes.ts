@@ -82,50 +82,100 @@ type ParseNumber<S extends string, L extends string = '', Result extends string 
     ? C extends Digit ? ParseNumber<S, `${L}${PeekDigits<S, L>}`, `${Result}${PeekDigits<S, L>}`>
     : C extends '.' ? Result extends `${any}.${any}` ? [] : ParseNumber<S, `${L}.`, `${Result}.`>
     : C extends 'e' | 'E'
-      ? S extends `${L}${C}-${Digit}${any}` ? ParseExponent<Result, `-${PeekDigits<S, `${L}${C}-`>}`, `${L}${C}-${PeekDigits<S, `${L}${C}-`>}`>
-      : S extends `${L}${C}+${Digit}${any}` ? ParseExponent<Result, PeekDigits<S, `${L}${C}+`>, `${L}${C}+${PeekDigits<S, `${L}${C}+`>}`>
-      : S extends `${L}${C}${Digit}${any}` ? ParseExponent<Result, PeekDigits<S, `${L}${C}`>, `${L}${C}${PeekDigits<S, `${L}${C}`>}`>
-      : [L, Num<Result>]
-    : [L, Num<Result>]
-  : [L, Num<Result>]  // expecting token
+      ? S extends `${L}${C}-${Digit}${any}` ? [`${L}${C}-${PeekDigits<S, `${L}${C}-`>}`, ParseExponent<Result, `-${PeekDigits<S, `${L}${C}-`>}`>]
+      : S extends `${L}${C}+${Digit}${any}` ? [`${L}${C}+${PeekDigits<S, `${L}${C}+`>}`, ParseExponent<Result, PeekDigits<S, `${L}${C}+`>>]
+      : S extends `${L}${C}${Digit}${any}` ? [`${L}${C}${PeekDigits<S, `${L}${C}`>}`, ParseExponent<Result, PeekDigits<S, `${L}${C}`>>]
+      : [L, ParseExponent<Result, '0'>]
+    : [L, ParseExponent<Result, '0'>]
+  : [L, ParseExponent<Result, '0'>]  // expecting token
+
+// Base normalization
+type NormalizeExponent<Mantissa extends string, Exponent extends string>
+  = Exponent extends `0` | '-0'
+    ? Mantissa extends `${infer I}.${infer F}0` ? NormalizeExponent<`${I}.${F}`, Exponent>
+    : Mantissa
+  : Exponent extends `-${infer E extends bigint}`
+    ? NormalizeExponent<
+        Mantissa extends `${infer I}.${infer F}`
+          ? I extends Digit ? `0.${I}${F}`
+          : I extends `${infer I1}${Digit}` ? `${I1}.${TrimStart<I, I1>}${F}`
+          : Mantissa
+        : Mantissa extends `${infer I}0` ? I
+        : Mantissa extends `${infer I}${Digit}` ? `${I}.${TrimStart<Mantissa, I>}`
+        : Mantissa
+        , `-${MinusOne<`${E}`>}`>
+  : NormalizeExponent<
+      Mantissa extends `${infer I}.${infer F}`
+        ? F extends Digit ? `${I}${F}`
+        : F extends `${infer F1}${infer F2}` ? `${I}${F1}.${F2}`
+        : Mantissa
+      : `${Mantissa}0`
+      , MinusOne<Exponent>>
+
+// to Negative Scientific Notation
+type NegSciForm<Mantissa extends string, Exponent extends string = '0'>
+  = [Mantissa & `0.${any}`] extends [never]
+    ? Exponent extends '0' ? Mantissa : `${Mantissa}e-${Exponent}`
+  : Mantissa extends `0.${Digit}` ? NegSciForm<TrimStart<Mantissa, '0.'>, PlusOne<Exponent>>
+  : Mantissa extends `0.${infer F1}${infer F2}` ? NegSciForm<`${F1}.${F2}`, PlusOne<Exponent>>
+  : Mantissa
+
+// to Possible Scientific Notation
+type PosSciForm<Mantissa extends string, Exponent extends string = '0'>
+  = Mantissa extends Digit | `${Digit}.${any}`
+    ? Exponent extends '0' ? Mantissa : `${Mantissa}e+${Exponent}`
+  : Mantissa extends `${infer I}.${infer F}`
+    ? PosSciForm<I extends `${infer I1}${Digit}` ? `${I1}.${TrimStart<I, I1>}${F}` : never, PlusOne<Exponent>>
+  : Mantissa extends `${infer I}0` ? PosSciForm<I, PlusOne<Exponent>>
+  : Mantissa extends `${infer I}${Digit}` ? PosSciForm<`${I}.${TrimStart<Mantissa, I>}`, PlusOne<Exponent>>
+  : Mantissa
 
 /**
  * Parses the exponent part of a JSON number, handling both positive and negative exponents.
  * This ensures that numbers with exponents are correctly interpreted and validated.
  */
-type ParseExponent<Mantissa extends string, Exponent extends string, L extends string = ''>
-  = Exponent extends `0` | '-0' ? [L, Num<Mantissa>]
-  : Exponent extends `-${infer N extends bigint}`
-    ? LessThan<N, 7n> extends false ? [L, Num<`${Mantissa}e-${N}`>]
-    : ParseExponent<Mantissa extends `${infer A}.${infer B}` & `${infer A1}${Digit}.${infer B}` ? `${A1}.${TrimStart<A, A1>}${B}`
-      : Mantissa extends `${infer A1}${Digit}` ? `${A1}.${TrimStart<Mantissa, A1>}`
-      : Mantissa
-      , `-${MinusOne<N>}`, L>
-  : Exponent extends `${infer N extends bigint}`
-    ? LessThan<N, 21n> extends false ? [L, Num<`${Mantissa}e+${N}`>]
-    : ParseExponent<Mantissa extends `${infer A}.${infer B1}${infer B2}` ? B2 extends '' ? `${A}${B1}` : `${A}${B1}.${B2}`
-      : `${Mantissa}0`
-      , `${MinusOne<N>}`, L>
-  : [L, Num<Mantissa>]
+type ParseExponent<Mantissa extends string, Exponent extends string, Normalized extends string = NormalizeExponent<Mantissa, Exponent>>
+  = Normalized extends `0.000000${any}`
+    ? NegSciForm<Normalized> extends infer N extends string ? Num<N> : never
+  : Normalized extends `${any}.${any}`
+    ? Normalized extends `${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}.${any}`
+      ? PosSciForm<Normalized> extends infer N extends string ? Num<N> : never
+    : Num<Normalized>
+  : Normalized extends `${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}${any}`
+    ? PosSciForm<Normalized> extends infer N extends string ? Num<N> : never
+  : Num<Normalized>
 
 /**
- * Return true if A is less than B, otherwise return false.
+ * Increments a bigint by one. This is used for parsing the exponent part of a JSON number.
  */
-type LessThan<A extends bigint, B extends bigint, L extends string = ``, Lt = undefined>
-  = `${A}<${B}` extends `${L}${infer X}${any}<${L}${infer Y}${any}`
-    ? LessThan<A, B, `${L}${any}`, [Lt, X & Y] extends [undefined, never] ? '0123456789' extends `${any}${X}${any}${Y}${any}` ? true : false : Lt>
-  : `${A}` extends `${L}${any}${any}` ? false
-  : `${B}` extends `${L}${any}${any}` ? true
-  : Lt extends true ? true : false
+type PlusOne<N extends string, Result extends string = ''>
+  = N extends `${infer L}9` ? L extends '' ? `10${Result}` : PlusOne<L, `0${Result}`>
+  : N extends `${infer L}8` ? `${L}9${Result}`
+  : N extends `${infer L}7` ? `${L}8${Result}`
+  : N extends `${infer L}6` ? `${L}7${Result}`
+  : N extends `${infer L}5` ? `${L}6${Result}`
+  : N extends `${infer L}4` ? `${L}5${Result}`
+  : N extends `${infer L}3` ? `${L}4${Result}`
+  : N extends `${infer L}2` ? `${L}3${Result}`
+  : N extends `${infer L}1` ? `${L}2${Result}`
+  : N extends `${infer L}0` ? `${L}1${Result}`
+  : never
 
 /**
  * Decrements a bigint by one. This is used for parsing the exponent part of a JSON number.
  */
-type MinusOne<N extends bigint, Result extends string = '', S extends string = `${N}`>
-  = S extends `${infer L}9` ? `${L}8${Result}` : S extends `${infer L}8` ? `${L}7${Result}` : S extends `${infer L}7` ? `${L}6${Result}`
-  : S extends `${infer L}6` ? `${L}5${Result}` : S extends `${infer L}5` ? `${L}4${Result}` : S extends `${infer L}4` ? `${L}3${Result}`
-  : S extends `${infer L}3` ? `${L}2${Result}` : S extends `${infer L}2` ? `${L}1${Result}` : S extends `${infer L}1` ? `${L}0${Result}`
-  : S extends '10' ? `9${Result}` : S extends `${infer L extends bigint}0` ? MinusOne<L, `9${Result}`> : never
+type MinusOne<N extends string, Result extends string = ''>
+  = N extends `${infer L}0` ? L extends '1' ? `9${Result}` : MinusOne<L, `9${Result}`>
+  : N extends `${infer L}1` ? `${L}0${Result}`
+  : N extends `${infer L}2` ? `${L}1${Result}`
+  : N extends `${infer L}3` ? `${L}2${Result}`
+  : N extends `${infer L}4` ? `${L}3${Result}`
+  : N extends `${infer L}5` ? `${L}4${Result}`
+  : N extends `${infer L}6` ? `${L}5${Result}`
+  : N extends `${infer L}7` ? `${L}6${Result}`
+  : N extends `${infer L}8` ? `${L}7${Result}`
+  : N extends `${infer L}9` ? `${L}8${Result}`
+  : never
 
 /**
  * Advances the parser by skipping whitespace characters.

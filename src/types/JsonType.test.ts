@@ -21,6 +21,11 @@ type _3a = Expect<Equal<JsonNumber<`"Hello\\nWorld\\u838a"`>, '"Hello\\nWorld\\u
 type _3b = Expect<Equal<JsonNumber<`12`>, '12'>>
 type _3c = Expect<Equal<JsonNumber<`12e1`>, '12e1'>>
 type _3d = Expect<Equal<JsonNumber<`-12.1e1`>, '-12.1e1'>>
+type _3e = Expect<Equal<JsonNumber<`1.1e-6`>, '1.1e-6'>>
+type _3f = Expect<Equal<JsonNumber<`1.1e-7`>, '1.1e-7'>>
+type _3g = Expect<Equal<JsonNumber<`1.1e+20`>, '1.1e+20'>>
+type _3h = Expect<Equal<JsonNumber<`1.1e+21`>, '1.1e+21'>>
+type _3i = Expect<Equal<JsonNumber<`1.23456e-21`>, '1.23456e-21'>>
 
 // @ts-expect-error expect boolean
 type _4a = Expect<Equal<JsonBoolean<`"Hello\\nWorld\\u838a"`>, '"Hello\\nWorld\\u838a"'>>
@@ -44,3 +49,8 @@ type _8a = Expect<Equal<Parse<`"Hello\\nWorld\\u838a"`>, never>>
 type _8b = Expect<Equal<Parse<`"Hello\\nWorld\\u838a"`>, 'Hello\nWorld莊'>>
 type _8c = Expect<Equal<Parse<`abc`>, never>>
 type _8d = Expect<Equal<Parse<`2e21`>, 2e21>>
+type _8e = Expect<Equal<Parse<`1.1e-6`>, 0.0000011>>
+type _8f = Expect<Equal<Parse<`1.1e-7`>, 1.1e-7>>
+type _8g = Expect<Equal<Parse<`1.1e+20`>, 110000000000000000000>>
+type _8h = Expect<Equal<Parse<`1.1e+21`>, 1.1e+21>>
+type _8i = Expect<Equal<Parse<`1.23456e-21`>, 1.23456e-21>>
