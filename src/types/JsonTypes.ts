@@ -100,6 +100,7 @@ type NormalizeExponent<Mantissa extends string, Exponent extends string>
           ? I extends Digit ? `0.${I}${F}`
           : I extends `${infer I1}${Digit}` ? `${I1}.${TrimStart<I, I1>}${F}`
           : Mantissa
+        : Mantissa extends Digit ? `0.${Mantissa}`
         : Mantissa extends `${infer I}0` ? I
         : Mantissa extends `${infer I}${Digit}` ? `${I}.${TrimStart<Mantissa, I>}`
         : Mantissa
