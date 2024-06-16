@@ -1,5 +1,11 @@
 # json-literal-types
 
+## 1.0.4
+
+### Patch Changes
+
+- 2998aa7: fix 1e6 normalize to .1
+
 ## 1.0.3
 
 ### Patch Changes
