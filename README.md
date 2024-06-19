@@ -4,18 +4,10 @@
 
 ## Installation
 
-To install the dependencies:
+Installation is done using the `npm install command`:
 
 ```bash
-bun install
-```
-
-## Building the Project
-
-To compile the TypeScript code:
-
-```bash
-bun run build
+npm i json-literal-types
 ```
 
 ## Usage
