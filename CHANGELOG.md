@@ -1,5 +1,11 @@
 # json-literal-types
 
+## 1.0.6
+
+### Patch Changes
+
+- 8333e6f: inferredParsedArray should return [{ host: string, port: number }] instead of [{ host: "localhost", port: 808 }]
+
 ## 1.0.5
 
 ### Patch Changes
