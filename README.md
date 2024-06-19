@@ -83,7 +83,7 @@ console.log(inferredParsedArray); // [{ host: 'localhost', port: 8080 }]
 
 ### Playground
 
-You can try out the examples in the [playground.ts](https://github.dev/teamchong/json-literal-types/blob/main/src/playground.ts) file to see how to use the different functions provided by this library.
+You can try out the examples in the [playground.ts](https://stackblitz.com/github/teamchong/json-literal-types?file=src%2Fplayground.ts) file to see how to use the different functions provided by this library.
 
 
 ### API
