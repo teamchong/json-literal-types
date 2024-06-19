@@ -15,7 +15,7 @@ export type ParseInferred<S extends string> = InferJsonType<Parse<S>>
  * - An array of specific values becomes an array of broader types.
  */
 export type InferJsonType<J>
-  = J extends any[] ? J[number] extends object ? J[number][] : InferJsonType<J[number]>[]
+  = J extends any[] ? InferJsonType<J[number]>[]
   : J extends object ? { [K in keyof J]: InferJsonType<J[K]> }
   : J extends string ? string
   : J extends number ? number

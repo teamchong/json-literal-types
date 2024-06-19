@@ -60,25 +60,25 @@ console.log(parsedArray); // [{ host: 'localhost', port: 8080 }]
 const inferredJsonString = '{"host":"localhost","port":8080}';
 
 const inferredParsedObject = parseInferredAs(inferredJsonString);
-console.log(inferredParsedObject); // { host: 'localhost', port: 8080 }
+console.log(inferredParsedObject); // { host: string, port: number }
 
 const inferredParsedString = parseInferredAsString('"hello\\nworld\\u838a"');
-console.log(inferredParsedString); // "hello\nworld莊"
+console.log(inferredParsedString); // string
 
 const inferredParsedNumber = parseInferredAsNumber('42');
-console.log(inferredParsedNumber); // 42
+console.log(inferredParsedNumber); // number
 
 const inferredParsedBoolean = parseInferredAsBoolean('true');
-console.log(inferredParsedBoolean); // true
+console.log(inferredParsedBoolean); // boolean
 
 const inferredParsedNull = parseInferredAsNull('null');
 console.log(inferredParsedNull); // null
 
 const inferredParsedObject2 = parseInferredAsObject('{"host":"localhost","port":8080}');
-console.log(inferredParsedObject2); // { host: 'localhost', port: 8080 }
+console.log(inferredParsedObject2); // { host: string, port: number }
 
 const inferredParsedArray = parseInferredAsArray('[{"host":"localhost","port":8080}]');
-console.log(inferredParsedArray); // [{ host: 'localhost', port: 8080 }]
+console.log(inferredParsedArray); // [{ host: string, port: number }]
 ```
 
 ### Playground
