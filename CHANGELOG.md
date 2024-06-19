@@ -1,5 +1,11 @@
 # json-literal-types
 
+## 1.0.5
+
+### Patch Changes
+
+- 8a27b19: Updated the Playground link to use [StackBlitz](https://stackblitz.com/github/teamchong/json-literal-types?file=src%2Fplayground.ts) for improved TypeScript error visibility.
+
 ## 1.0.4
 
 ### Patch Changes
