@@ -1,5 +1,11 @@
 # json-literal-types
 
+## 1.0.7
+
+### Patch Changes
+
+- bde04aa: update installation on README.md
+
 ## 1.0.6
 
 ### Patch Changes
