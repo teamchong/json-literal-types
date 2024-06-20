@@ -1,6 +1,8 @@
 import { parseAs, parseAsString, parseAsNumber, parseAsBoolean, parseAsNull, parseAsObject, parseAsArray, parseInferredAs, parseInferredAsString, parseInferredAsNumber, parseInferredAsBoolean, parseInferredAsNull, parseInferredAsObject, parseInferredAsArray } from './index'
 import { expect, test } from "bun:test";
 
+const inferredNull = null as unknown as object
+
 test('parseAs', () => {
   // @ts-expect-error expect json
   expect(() => parseAs('Hello\\nWorld\\u838a')).toThrowError()
@@ -117,17 +119,17 @@ test('parseInferredAs', () => {
   // @ts-expect-error expect json
   expect(() => expect(parseInferredAs('null')).toEqual('number')).toThrowError()
   expect(parseInferredAs('null')).toBeNull()
-  expect(parseInferredAs('null')).toEqual(null)
+  expect(parseInferredAs('null')).toEqual(inferredNull)
 
   // @ts-expect-error expect object
   expect(() => expect(parseInferredAs('{"key":[1,"Hello\\nWorld\\u838a",true,false,null]}')).toEqual(null)).toThrowError()
   expect(parseInferredAs('{"key":[1,"Hello\\nWorld\\u838a",true,false,null]}')).toBeObject()
-  expect(parseInferredAs('{"key":[1,"Hello\\nWorld\\u838a",true,false,null]}')).toEqual({"key":[1,"Hello\nWorld莊",true,false,null]})
+  expect(parseInferredAs('{"key":[1,"Hello\\nWorld\\u838a",true,false,null]}')).toEqual({"key":[1,"Hello\nWorld莊",true,false,inferredNull]})
 
   // @ts-expect-error expect array
   expect(() => expect(parseInferredAs('[1,"Hello\\nWorld\\u838a",true,false,null]')).toEqual(null)).toThrowError()
   expect(parseInferredAs('[1,"Hello\\nWorld\\u838a",true,false,null]')).toBeObject()
-  expect(parseInferredAs('[1,"Hello\\nWorld\\u838a",true,false,null]')).toEqual([1,"Hello\nWorld莊",true,false,null])
+  expect(parseInferredAs('[1,"Hello\\nWorld\\u838a",true,false,null]')).toEqual([1,"Hello\nWorld莊",true,false,inferredNull])
 })
 test('parseInferredAsString', () => {
   // @ts-expect-error expect json
@@ -163,7 +165,7 @@ test('parseInferredAsNull', () => {
   // @ts-expect-error expect json
   expect(() => expect(parseInferredAsNull('null')).toEqual('number')).toThrowError()
   expect(parseInferredAsNull('null')).toBeNull()
-  expect(parseInferredAsNull('null')).toEqual(null)
+  expect(parseInferredAsNull('null')).toEqual(inferredNull)
 })
 test('parseInferredAsObject', () => {
   // @ts-expect-error expect json
@@ -172,14 +174,14 @@ test('parseInferredAsObject', () => {
   // @ts-expect-error expect object
   expect(() => expect(parseInferredAsObject('{"key":[1,"Hello\\nWorld\\u838a",true,false,null]}')).toEqual(null)).toThrowError()
   expect(parseInferredAsObject('{"key":[1,"Hello\\nWorld\\u838a",true,false,null]}')).toBeObject()
-  expect(parseInferredAsObject('{"key":[1,"Hello\\nWorld\\u838a",true,false,null]}')).toEqual({"key":[1,"Hello\nWorld莊",true,false,null]})
+  expect(parseInferredAsObject('{"key":[1,"Hello\\nWorld\\u838a",true,false,null]}')).toEqual({"key":[1,"Hello\nWorld莊",true,false,inferredNull]})
 })
 test('parseInferredAsArray', () => {
   // @ts-expect-error expect json
   expect(() => parseInferredAsObject('Hello\\nWorld\\u838a')).toThrowError()
 
   // @ts-expect-error expect array
-  expect(() => expect(parseInferredAsArray('[1,"Hello\\nWorld\\u838a",true,false,null]')).toEqual(null)).toThrowError()
+  expect(() => expect(parseInferredAsArray('[1,"Hello\\nWorld\\u838a",true,false,null]')).toEqual(inferredNull)).toThrowError()
   expect(parseInferredAsArray('[1,"Hello\\nWorld\\u838a",true,false,null]')).toBeObject()
-  expect(parseInferredAsArray('[1,"Hello\\nWorld\\u838a",true,false,null]')).toEqual([1,"Hello\nWorld莊",true,false,null])
+  expect(parseInferredAsArray('[1,"Hello\\nWorld\\u838a",true,false,null]')).toEqual([1,"Hello\nWorld莊",true,false,inferredNull])
 })

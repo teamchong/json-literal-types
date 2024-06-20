@@ -6,9 +6,9 @@ import {
   } from './index';
   
   // Example usage for exact parsing functions
-  const jsonString = '{"host":"localhost","port":8080}';
+  const jsonString: string = '{"host":"localhost","port":8080}';
   
-  const parsedObject = parseAs(jsonString);
+  const parsedObject = parseAs(jsonString as '{"host":"localhost","port":8080}');
   console.log(parsedObject); // { host: 'localhost', port: 8080 }
   
   const parsedString = parseAsString('"hello\\nworld\\u838a"');

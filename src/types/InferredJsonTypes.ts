@@ -20,4 +20,5 @@ export type InferJsonType<J>
   : J extends string ? string
   : J extends number ? number
   : J extends boolean ? boolean
+  : J extends null ? object
   : J
