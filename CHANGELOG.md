@@ -1,5 +1,11 @@
 # json-literal-types
 
+## 1.0.8
+
+### Patch Changes
+
+- ac910a1: Add more test cases
+
 ## 1.0.7
 
 ### Patch Changes
