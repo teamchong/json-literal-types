@@ -1,5 +1,11 @@
 # json-literal-types
 
+## 1.0.9
+
+### Patch Changes
+
+- e92e0a7: Included a check to prevent duplicate properties in the JSON object.
+
 ## 1.0.8
 
 ### Patch Changes
