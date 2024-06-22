@@ -8,6 +8,14 @@ import {
 // Example usage for exact parsing functions
 const jsonString: string = '{"host":"localhost","port":8080}';
 
+try {
+  // @ts-expect-error expect json, compile time check for string literal
+  const parseInvalidObject = parseAs(jsonString as '{"host":"localhost","port":8080}a');
+  console.log(parseInvalidObject); // { host: 'localhost', port: 8080 }
+} catch (error) {
+  console.log(`expected ${error}`)
+}
+
 const parsedObject = parseAs(jsonString as '{"host":"localhost","port":8080}');
 console.log(parsedObject); // { host: 'localhost', port: 8080 }
 

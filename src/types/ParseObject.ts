@@ -10,7 +10,8 @@ export type ParseObject<S extends string, L extends string = '{', Result extends
     ? Result extends {} ? [`${L}}`, {}]
     : []
   : ParseString<S, `${Peek<S, L>[0]}"`> extends [infer L extends string, infer P extends string]
-    ? ParseValue<S, `${Peek<S, L>[0]}:`> extends [infer L extends string, infer V]
+    ? P extends keyof Result ? [] // duplicated property name
+    : ParseValue<S, `${Peek<S, L>[0]}:`> extends [infer L extends string, infer V]
       ? Peek<S, L> extends infer C extends string[]
         ? C extends [infer L extends string, ','] ? ParseObject<S, `${L},`, {
             [K in keyof Result | P]: K extends keyof Result ? Result[K] : V;

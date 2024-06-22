@@ -5,3 +5,4 @@ type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y 
 
 type _1a = Expect<Equal<ParseObject<'{}'>, ['{}', {}]>>
 type _1b = Expect<Equal<ParseObject<'{"key":[1,"Hello\\nWorld\\u838a",true,false,null]}'>, ['{\"key\":[1,\"Hello\\nWorld\\u838a\",true,false,null]}', {key:[1,"Hello\nWorld莊",true,false,null]}]>>
+type _1c = Expect<Equal<ParseObject<'{"a": 1, "a": 2}'>, []>>
